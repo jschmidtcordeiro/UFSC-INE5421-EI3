@@ -39,7 +39,57 @@ class Grammar:
         return cls(non_terminals, terminals, initial_symbol, productions)
     
     def remove_useless_symbols(self):
-        pass
+        self.remove_unreachable_symbols()
+        self.remove_unproductive_symbols()
+
+    def remove_unreachable_symbols(self):
+        reachable_symbols = set()
+        marked = set()
+        marked.add(self.initial_symbol)
+
+        while marked:
+            symbol = marked.pop()
+            reachable_symbols.add(symbol)
+            for production in self.productions[symbol]:
+                for char in production:
+                    if char in self.non_terminals and char not in reachable_symbols:
+                        marked.add(char)
+
+        non_reachable_symbols = set(self.non_terminals) - reachable_symbols
+        print("Removing non-reachable symbols:", non_reachable_symbols)
+        for symbol in non_reachable_symbols:
+            del self.productions[symbol]
+
+    def remove_unproductive_symbols(self):
+        productive_symbols = set()
+        marked = set()
+
+        ## Run through all non-terminal symbols and mark them as productive if they have a production with only terminal symbols or epsilon
+        for symbol in self.non_terminals:
+            for production in self.productions[symbol]:
+                if all(char in self.terminals or char == '&' for char in production):
+                    productive_symbols.add(symbol)
+        
+        if not productive_symbols:
+            return
+
+        have_symbols_to_mark = True
+
+        while have_symbols_to_mark:
+            have_symbols_to_mark = False
+            # For all not marked non-terminal symbols
+            for non_terminal_symbol in set(self.non_terminals) - productive_symbols:
+                for production in self.productions[non_terminal_symbol]:
+                    ## If the production contains terminal symbols, epsilon or productive symbols, mark the symbol
+                    if all(char in self.terminals or char == '&' or char in productive_symbols for char in production):
+                        productive_symbols.add(non_terminal_symbol)
+                        have_symbols_to_mark = True
+
+
+        non_productive_symbols = set(self.non_terminals) - productive_symbols
+        print("Removing non-productive symbols:", non_productive_symbols)
+        for symbol in non_productive_symbols:
+            del self.productions[symbol]
 
     def remove_epsilon_productions(self):
         pass
