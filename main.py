@@ -12,6 +12,7 @@ def main():
     grammar = Grammar.from_string(input)
     grammar.remove_useless_symbols()
     grammar.remove_epsilon_productions()
+    grammar.remove_unit_productions()
    
 if __name__ == "__main__":
     main()

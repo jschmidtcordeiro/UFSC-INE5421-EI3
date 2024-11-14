@@ -128,6 +128,7 @@ class Grammar:
                 for production in self.productions[symbol]:
                     if all(char in nullable_symbols for char in production):
                         nullable_symbols.add(symbol)
+
         print("Nullable symbols:", nullable_symbols)
 
         # 2. Eliminar produções ε:
@@ -184,7 +185,47 @@ class Grammar:
         print("Final productions:", self.productions)
 
     def remove_unit_productions(self):
-        pass
+        # For each non-terminal A, compute set of non-terminals reachable through unit productions
+        unit_pairs = set()
+        for A in self.non_terminals:
+            # Initialize with reflexive pairs (A,A)
+            current_pairs = {(A, A)}
+            changed = True
+            
+            while changed:
+                changed = False
+                # Look for B → C where (A,B) is already found
+                new_pairs = set()
+                for B, C in [(b, c) for b, c in current_pairs]:
+                    if B in self.productions:
+                        for prod in self.productions[B]:
+                            # If production is a single non-terminal
+                            if len(prod) == 1 and prod in self.non_terminals:
+                                new_pair = (A, prod)
+                                if new_pair not in current_pairs:
+                                    new_pairs.add(new_pair)
+                                    changed = True
+                current_pairs.update(new_pairs)
+            unit_pairs.update(current_pairs)
+        
+        # Create new productions without unit productions
+        new_productions = {}
+        for A in self.non_terminals:
+            new_productions[A] = []
+            # For each non-terminal B reachable from A through unit productions
+            for _, B in [(x, y) for x, y in unit_pairs if x == A]:
+                if B in self.productions:
+                    # Add all non-unit productions of B to A
+                    for prod in self.productions[B]:
+                        # Skip unit productions
+                        if len(prod) != 1 or prod not in self.non_terminals:
+                            if prod not in new_productions[A]:
+                                new_productions[A].append(prod)
+        
+        # Update the grammar's productions
+        self.productions = new_productions
+
+        print("Final productions:", self.productions)
 
     def remove_left_recursion(self):
         pass
