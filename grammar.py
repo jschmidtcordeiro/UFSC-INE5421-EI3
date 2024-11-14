@@ -39,6 +39,18 @@ class Grammar:
                 productions[left].append(right)
                 
         return cls(non_terminals, terminals, initial_symbol, productions)
+
+    def print_productions(self):
+        # Print initial symbol first
+        if self.initial_symbol in self.productions:
+            productions_str = " | ".join(self.productions[self.initial_symbol])
+            print(f"    {self.initial_symbol} -> {productions_str}")
+        
+        # Print remaining symbols in alphabetical order
+        for symbol in sorted(self.productions.keys()):
+            if symbol != self.initial_symbol:
+                productions_str = " | ".join(self.productions[symbol])
+                print(f"    {symbol} -> {productions_str}")
     
     def remove_useless_symbols(self):
         self.remove_unreachable_symbols()
@@ -168,6 +180,7 @@ class Grammar:
         #     i. Adicione um novo símbolo inicial S' com produções:
         #         - S' → S
         #         - S' → ε        if '&' in self.productions[self.initial_symbol]:
+        #     ii. Remover a produção ε do símbolo inicial S.
         # Create new initial symbol (S')
         new_initial = self.initial_symbol + "'"
         while new_initial in self.non_terminals:  # Ensure unique name
@@ -178,11 +191,15 @@ class Grammar:
         
         # Add productions for new initial symbol
         self.productions[new_initial] = [self.initial_symbol, '&']
+
+        # Remove epsilon production from initial symbol
+        self.productions[self.initial_symbol].remove('&')
         
         # Update initial symbol
         self.initial_symbol = new_initial
 
-        print("Final productions:", self.productions)
+        print("Productions after removing epsilon productions:")
+        self.print_productions()
 
     def remove_unit_productions(self):
         # For each non-terminal A, compute set of non-terminals reachable through unit productions
@@ -225,7 +242,8 @@ class Grammar:
         # Update the grammar's productions
         self.productions = new_productions
 
-        print("Final productions:", self.productions)
+        print("Productions after removing unit productions:")
+        self.print_productions()
 
     def remove_left_recursion(self):
         pass
