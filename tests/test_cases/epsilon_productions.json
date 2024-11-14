@@ -1,0 +1,45 @@
+[
+    {
+        "name": "Simple epsilon production",
+        "input": "{S,A}{a,b}{S}{S = aA; A = b; A = &}",
+        "expected": {
+            "non_terminals": ["S", "A"],
+            "terminals": ["a", "b"],
+            "initial_symbol": "S",
+            "productions": {
+                "S": ["aA", "a"],
+                "A": ["b"]
+            }
+        }
+    },
+    {
+        "name": "Multiple nullable symbols",
+        "input": "{S,A,B}{a,b}{S}{S = AB; A = aA; A = &; B = bB; B = &}",
+        "expected": {
+            "non_terminals": ["S", "A", "B", "S'"],
+            "terminals": ["a", "b"],
+            "initial_symbol": "S'",
+            "productions": {
+                "S'": ["S", "&"],
+                "S": ["AB", "A", "B"],
+                "A": ["aA", "a"],
+                "B": ["bB", "b"]
+            }
+        }
+    },
+    {
+        "name": "Chain of nullable symbols",
+        "input": "{S,A,B,C}{a,b,c}{S}{S = ABC; A = &; B = b; B = &; C = c; C = &}",
+        "expected": {
+            "non_terminals": ["S", "A", "B", "C", "S'"],
+            "terminals": ["a", "b", "c"],
+            "initial_symbol": "S'",
+            "productions": {
+                "S'": ["S", "&"],
+                "S": ["BC", "B", "C"],
+                "B": ["b"],
+                "C": ["c"]
+            }
+        }
+    }
+] 

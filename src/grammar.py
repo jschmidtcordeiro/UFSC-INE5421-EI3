@@ -56,33 +56,60 @@ class Grammar:
         self.remove_unreachable_symbols()
         self.remove_unproductive_symbols()
 
+    # Update the grammar based on the productions
+    def update_grammar(self):
+        non_terminals = []
+        terminals = []
+
+        for symbol in self.non_terminals:
+            if symbol in self.productions:
+                non_terminals.append(symbol)
+
+                for production in self.productions[symbol]:
+                    for char in production:
+                        if char in self.terminals and char not in terminals:
+                            terminals.append(char)
+        
+        self.non_terminals = non_terminals
+        self.terminals = terminals
+
     def remove_unreachable_symbols(self):
         reachable_symbols = set()
         marked = set()
         marked.add(self.initial_symbol)
 
+        # Remove symbols that are not in the productions
+        for symbol in self.non_terminals:
+            if symbol not in self.productions:
+                self.non_terminals.remove(symbol)
+
         while marked:
             symbol = marked.pop()
             reachable_symbols.add(symbol)
-            for production in self.productions[symbol]:
-                for char in production:
-                    if char in self.non_terminals and char not in reachable_symbols:
-                        marked.add(char)
+            if symbol in self.productions:
+                for production in self.productions[symbol]:
+                    for char in production:
+                        if char in self.non_terminals and char not in reachable_symbols:
+                            marked.add(char)
 
         non_reachable_symbols = set(self.non_terminals) - reachable_symbols
         print("Removing non-reachable symbols:", non_reachable_symbols)
         for symbol in non_reachable_symbols:
-            del self.productions[symbol]
+            self.non_terminals.remove(symbol)
+            if symbol in self.productions:
+                del self.productions[symbol]
+
+        self.update_grammar()
 
     def remove_unproductive_symbols(self):
         productive_symbols = set()
-        marked = set()
 
         ## Run through all non-terminal symbols and mark them as productive if they have a production with only terminal symbols or epsilon
         for symbol in self.non_terminals:
-            for production in self.productions[symbol]:
-                if all(char in self.terminals or char == '&' for char in production):
-                    productive_symbols.add(symbol)
+            if symbol in self.productions:
+                for production in self.productions[symbol]:
+                    if all(char in self.terminals for char in production):
+                        productive_symbols.add(symbol)
         
         if not productive_symbols:
             return
@@ -94,11 +121,9 @@ class Grammar:
             # For all not marked non-terminal symbols
             for non_terminal_symbol in set(self.non_terminals) - productive_symbols:
                 for production in self.productions[non_terminal_symbol]:
-                    ## If the production contains terminal symbols, epsilon or productive symbols, mark the symbol
-                    if all(char in self.terminals or char == '&' or char in productive_symbols for char in production):
+                    if all(char in self.terminals or char in productive_symbols for char in production):
                         productive_symbols.add(non_terminal_symbol)
                         have_symbols_to_mark = True
-
 
         non_productive_symbols = set(self.non_terminals) - productive_symbols
         print("Removing non-productive symbols:", non_productive_symbols)
@@ -106,14 +131,22 @@ class Grammar:
         # Remove non-productive symbols from productions
         for symbol in non_productive_symbols:
             del self.productions[symbol]
+        
         # Remove non-productive symbols from non-terminals
         self.non_terminals = list(productive_symbols)
-        # Remove productions with non-productive symbols
+        
+        # Remove productions with non-productive symbols (fixed version)
         for symbol in self.non_terminals:
-            for production in self.productions[symbol]:
-                if any(non_productive_symbol in production for non_productive_symbol in non_productive_symbols):
-                    self.productions[symbol].remove(production)
+            # Create a new list with only the valid productions
+            valid_productions = [
+                production for production in self.productions[symbol]
+                if not any(non_productive_symbol in production 
+                          for non_productive_symbol in non_productive_symbols)
+            ]
+            self.productions[symbol] = valid_productions
+        self.print_productions()
 
+        self.update_grammar()
 
     def remove_epsilon_productions(self):
         nullable_symbols = {'&'}
@@ -172,7 +205,7 @@ class Grammar:
             self.productions[symbol] = list(new_productions)
             
             # Keep epsilon production only for initial symbol if it was nullable
-            if symbol == self.initial_symbol and '&' in nullable_symbols:
+            if symbol == self.initial_symbol and symbol in nullable_symbols:
                 self.productions[symbol].append('&')
         
         # 3. Tratar o símbolo inicial:
@@ -182,24 +215,28 @@ class Grammar:
         #         - S' → ε        if '&' in self.productions[self.initial_symbol]:
         #     ii. Remover a produção ε do símbolo inicial S.
         # Create new initial symbol (S')
-        new_initial = self.initial_symbol + "'"
-        while new_initial in self.non_terminals:  # Ensure unique name
-            new_initial += "'"
+        self.print_productions()
+        if '&' in self.productions[self.initial_symbol]:
+            new_initial = self.initial_symbol + "'"
+            while new_initial in self.non_terminals:  # Ensure unique name
+                new_initial += "'"
         
-        # Add new initial symbol to non-terminals
-        self.non_terminals.append(new_initial)
+            # Add new initial symbol to non-terminals
+            self.non_terminals.append(new_initial)
         
-        # Add productions for new initial symbol
-        self.productions[new_initial] = [self.initial_symbol, '&']
+            # Add productions for new initial symbol
+            self.productions[new_initial] = [self.initial_symbol, '&']
 
-        # Remove epsilon production from initial symbol
-        self.productions[self.initial_symbol].remove('&')
-        
-        # Update initial symbol
-        self.initial_symbol = new_initial
+            # Remove epsilon production from initial symbol
+            self.productions[self.initial_symbol].remove('&')
+            
+            # Update initial symbol
+            self.initial_symbol = new_initial
 
         print("Productions after removing epsilon productions:")
         self.print_productions()
+
+        self.update_grammar()
 
     def remove_unit_productions(self):
         # For each non-terminal A, compute set of non-terminals reachable through unit productions
@@ -241,6 +278,8 @@ class Grammar:
         
         # Update the grammar's productions
         self.productions = new_productions
+
+        self.update_grammar()
 
         print("Productions after removing unit productions:")
         self.print_productions()

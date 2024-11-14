@@ -1,0 +1,44 @@
+[
+    {
+        "name": "Simple unit production",
+        "input": "{S,A,B}{a,b}{S}{S = A; A = B; B = b}",
+        "expected": {
+            "non_terminals": ["S", "A", "B"],
+            "terminals": ["a", "b"],
+            "initial_symbol": "S",
+            "productions": {
+                "S": ["b"],
+                "A": ["b"],
+                "B": ["b"]
+            }
+        }
+    },
+    {
+        "name": "Cyclic unit productions",
+        "input": "{S,A,B}{a,b}{S}{S = A; A = B; B = S; B = b}",
+        "expected": {
+            "non_terminals": ["S", "A", "B"],
+            "terminals": ["a", "b"],
+            "initial_symbol": "S",
+            "productions": {
+                "S": ["b"],
+                "A": ["b"],
+                "B": ["b"]
+            }
+        }
+    },
+    {
+        "name": "Mixed unit and non-unit productions",
+        "input": "{S,A,B}{a,b}{S}{S = A; S = aB; A = B; A = ab; B = b}",
+        "expected": {
+            "non_terminals": ["S", "A", "B"],
+            "terminals": ["a", "b"],
+            "initial_symbol": "S",
+            "productions": {
+                "S": ["aB", "ab", "b"],
+                "A": ["ab", "b"],
+                "B": ["b"]
+            }
+        }
+    }
+] 

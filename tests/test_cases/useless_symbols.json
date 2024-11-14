@@ -1,0 +1,39 @@
+[
+    {
+        "name": "Basic unreachable symbols",
+        "input": "{S,A,B,C}{a,b,c}{S}{S = aA; A = bB; C = cC}",
+        "expected": {
+            "non_terminals": ["S", "A"],
+            "terminals": ["a", "b"],
+            "initial_symbol": "S",
+            "productions": {
+                "S": ["aA"],
+                "A": ["bB"]
+            }
+        }
+    },
+    {
+        "name": "Basic unproductive symbols",
+        "input": "{S,A,B}{a,b}{S}{S = AB; A = aA; B = b}",
+        "expected": {
+            "non_terminals": ["B"],
+            "terminals": ["b"],
+            "initial_symbol": "S",
+            "productions": {
+                "B": ["b"]
+            }
+        }
+    },
+    {
+        "name": "Complex case with both unreachable and unproductive",
+        "input": "{S,A,B,C,D}{a,b,c,d}{S}{S = AB; A = aA; B = b; C = cC; D = dD}",
+        "expected": {
+            "non_terminals": ["B"],
+            "terminals": ["b"],
+            "initial_symbol": "S",
+            "productions": {
+                "B": ["b"]
+            }
+        }
+    }
+]
