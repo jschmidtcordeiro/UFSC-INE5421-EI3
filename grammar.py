@@ -1,3 +1,5 @@
+from itertools import combinations
+
 class Grammar:
     def __init__(self, non_terminals, terminals, initial_symbol, productions):
         # self.non_terminals = ['A', 'B', 'S']
@@ -88,11 +90,98 @@ class Grammar:
 
         non_productive_symbols = set(self.non_terminals) - productive_symbols
         print("Removing non-productive symbols:", non_productive_symbols)
+
+        # Remove non-productive symbols from productions
         for symbol in non_productive_symbols:
             del self.productions[symbol]
+        # Remove non-productive symbols from non-terminals
+        self.non_terminals = list(productive_symbols)
+        # Remove productions with non-productive symbols
+        for symbol in self.non_terminals:
+            for production in self.productions[symbol]:
+                if any(non_productive_symbol in production for non_productive_symbol in non_productive_symbols):
+                    self.productions[symbol].remove(production)
+
 
     def remove_epsilon_productions(self):
-        pass
+        nullable_symbols = {'&'}
+
+        # 1. Identificar os não-terminais anuláveis:
+        # a. Inicialize o conjunto de não-terminais anuláveis (Nε) como vazio.
+        # b. Para cada produção da forma A → α na gramática:
+        #     i. Se α contém apenas ε, adicione A ao conjunto Nε.
+        # c. Enquanto houver novos não-terminais a adicionar ao Nε:
+        #     i. Para cada produção A → X1 X2 ... Xn:
+        #         - Se todos os Xi pertencem a Nε, adicione A ao Nε.
+
+        # Search for non-terminal symbols with epsilon productions
+        for symbol in self.non_terminals:
+            for production in self.productions[symbol]:
+                if '&' in production:
+                    nullable_symbols.add(symbol)
+        
+        
+        old_nullable_symbols_length = 1 # '&' is already in nullable_symbols
+        while old_nullable_symbols_length != len(nullable_symbols):
+            old_nullable_symbols_length = len(nullable_symbols)
+            for symbol in self.non_terminals:
+                for production in self.productions[symbol]:
+                    if all(char in nullable_symbols for char in production):
+                        nullable_symbols.add(symbol)
+        print("Nullable symbols:", nullable_symbols)
+
+        # 2. Eliminar produções ε:
+        # a. Para cada produção A → X1 X2 ... Xn:
+        #     i. Gere todas as combinações possíveis de X1 X2 ... Xn removendo 0 ou mais não-terminais de Nε.
+        #     ii. Adicione as novas produções resultantes à gramática, sem duplicatas.
+        # b. Remova todas as produções originais que contêm ε no lado direito (como A → ε), exceto se forem do símbolo inicial.
+
+        for symbol in self.non_terminals:
+            new_productions = set()  # Use set to avoid duplicates
+            for production in self.productions[symbol][:]:  # Create a copy to iterate
+                if production == '&':
+                    continue  # Skip epsilon productions for now
+                
+                # Find positions of nullable symbols in the production
+                nullable_positions = [i for i, char in enumerate(production) 
+                                   if char in nullable_symbols and char != '&']
+                
+                # Generate all possible combinations of these positions
+                for r in range(len(nullable_positions) + 1):
+                    for pos_combo in combinations(nullable_positions, r):
+                        # Create new production by keeping characters NOT in pos_combo
+                        new_prod = ''.join(char for i, char in enumerate(production) 
+                                         if i not in pos_combo)
+                        if new_prod:  # Don't add empty productions
+                            new_productions.add(new_prod)
+                
+            # Update productions for this symbol
+            self.productions[symbol] = list(new_productions)
+            
+            # Keep epsilon production only for initial symbol if it was nullable
+            if symbol == self.initial_symbol and '&' in nullable_symbols:
+                self.productions[symbol].append('&')
+        
+        # 3. Tratar o símbolo inicial:
+        # a. Se o símbolo inicial S ainda gera ε:
+        #     i. Adicione um novo símbolo inicial S' com produções:
+        #         - S' → S
+        #         - S' → ε        if '&' in self.productions[self.initial_symbol]:
+        # Create new initial symbol (S')
+        new_initial = self.initial_symbol + "'"
+        while new_initial in self.non_terminals:  # Ensure unique name
+            new_initial += "'"
+        
+        # Add new initial symbol to non-terminals
+        self.non_terminals.append(new_initial)
+        
+        # Add productions for new initial symbol
+        self.productions[new_initial] = [self.initial_symbol, '&']
+        
+        # Update initial symbol
+        self.initial_symbol = new_initial
+
+        print("Final productions:", self.productions)
 
     def remove_unit_productions(self):
         pass
