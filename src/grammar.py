@@ -285,5 +285,35 @@ class Grammar:
         self.print_productions()
 
     def remove_left_recursion(self):
-        pass
+        for i in range(len(self.non_terminals)):
+            a_i = self.non_terminals[i]
+            
+            # Remove indirect left recursion
+            '''
+            for j in range(i):
+                a_j = self.non_terminals[j]
+                for i_production in self.productions[a_i]:
+                    if i_production[0] == a_j:
+                        self.productions[a_i].remove(i_production)
+                        for j_production in self.productions[a_j]:
+                            self.productions[a_i].append(j_production + i_production)
+            '''
+            # Remove direct left recursion
+            prods_with_recursion = [prod for prod in self.productions[a_i] if prod[0] == a_i]
+            
+            if len(prods_with_recursion) > 0:
+                prods_without_recursion = [prod for prod in self.productions[a_i] if prod not in prods_with_recursion]
 
+            
+                new_non_terminal = a_i + '\''
+                self.non_terminals.append(new_non_terminal)
+
+                self.productions[a_i].clear()
+                
+                for prod in prods_without_recursion:
+                    self.productions[a_i].append(prod + new_non_terminal)
+                
+                self.productions[new_non_terminal] = []
+                for prod in prods_with_recursion:
+                    self.productions[new_non_terminal].append(prod[1:] + new_non_terminal)
+                self.productions[new_non_terminal].append('&')

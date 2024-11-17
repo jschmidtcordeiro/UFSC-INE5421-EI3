@@ -14,6 +14,8 @@ def main():
     grammar.remove_useless_symbols()
     grammar.remove_epsilon_productions()
     grammar.remove_unit_productions()
+
+    grammar.remove_left_recursion()
    
 if __name__ == "__main__":
     main()
