@@ -13,5 +13,19 @@
                 "A": ["Sa", "a"]
             }
         }
+    },
+    {
+        "name": "Caso de teste 3",
+        "input": "{A,S,C}{a,b,c,d}{A}{A = Sc; A = Acc; S = Sab; S = Cc; S = Aa; C = Scd; C = Aba; C = Cb; C = a;}",
+        "expected": {
+            "non_terminals": ["A", "S", "C"],
+            "terminals": ["a", "b", "c", "d"],
+            "initial_symbol": "A",
+            "productions": {
+                "A": ["Sc", "Acc"],
+                "S": ["Sab", "Cc", "Aa"],
+                "C": ["Scd", "Aba", "Cb", "a"]
+            }
+        }
     }
 ] 
