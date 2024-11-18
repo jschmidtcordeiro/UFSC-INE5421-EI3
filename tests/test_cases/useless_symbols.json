@@ -35,5 +35,19 @@
                 "B": ["b"]
             }
         }
+    },
+    {
+        "name": "Caso de teste 1",
+        "input": "{S,B,A}{a,b,c,d}{S}{S = Bd; S = &; B = Ab; B = Bc; A = Sa; A = &;}",
+        "expected": {
+            "non_terminals": ["S", "B", "A"],
+            "terminals": ["a", "b", "c", "d"],
+            "initial_symbol": "S",
+            "productions": {
+                "S": ["Bd", "&"],
+                "B": ["Ab", "Bc"],
+                "A": ["Sa", "&"]
+            }
+        }
     }
 ]

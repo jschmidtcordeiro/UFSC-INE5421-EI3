@@ -28,17 +28,17 @@
         }
     },
     {
-        "name": "Chain of nullable symbols",
-        "input": "{S,A,B,C}{a,b,c}{S}{S = ABC; A = &; B = b; B = &; C = c; C = &}",
+        "name": "Caso de teste 1",
+        "input": "{S,B,A}{a,b,c,d}{S}{S = Bd; S = &; B = Ab; B = Bc; A = Sa; A = &;}",
         "expected": {
-            "non_terminals": ["S", "A", "B", "C", "S'"],
-            "terminals": ["a", "b", "c"],
+            "non_terminals": ["S", "A", "B", "S'"],
+            "terminals": ["a", "b", "c", "d"],
             "initial_symbol": "S'",
             "productions": {
                 "S'": ["S", "&"],
-                "S": ["BC", "B", "C"],
-                "B": ["b"],
-                "C": ["c"]
+                "S": ["Bd"],
+                "B": ["Ab", "Bc", "b"],
+                "A": ["Sa", "a"]
             }
         }
     }

@@ -58,33 +58,34 @@ class TestGrammar:
         grammar.remove_epsilon_productions()
         assert_grammar_equals(grammar, test_case["expected"])
 
-    # @pytest.mark.parametrize("test_case", load_test_cases("unit_productions.json"))
-    # def test_remove_unit_productions(self, test_case):
-    #     print(f"\nTesting: {test_case['name']}")
-    #     grammar = Grammar.from_string(test_case["input"])
-    #     grammar.remove_unit_productions()
-    #     assert_grammar_equals(grammar, test_case["expected"])
+    @pytest.mark.parametrize("test_case", load_test_cases("unit_productions_moodle.json"))
+    def test_remove_unit_productions(self, test_case):
+        print(f"\nTesting: {test_case['name']}")
+        grammar = Grammar.from_string(test_case["input"])
+        grammar.remove_unit_productions()
+        assert_grammar_equals(grammar, test_case["expected"])
 
     # def test_combined_transformations(self):
     #     """Test all transformations in sequence"""
-    #     input_str = "{S,A,B,C}{a,b,c}{S}{S = A; A = B; B = C; C = c; C = &}"
+    #     input_str = "{A,B,S}{a,b,c,d}{S}{S = Bd; S = &; B = Bc; B = b; B = Ab; A = Sa; A = a}"
     #     grammar = Grammar.from_string(input_str)
         
     #     # Apply all transformations
     #     grammar.remove_useless_symbols()
     #     grammar.remove_epsilon_productions()
     #     grammar.remove_unit_productions()
+    #     # grammar.remove_left_recursion()
         
     #     expected = {
-    #         "non_terminals": ["S", "A", "B", "C", "S'"],
-    #         "terminals": ["c"],
-    #         "initial_symbol": "S'",
+    #         "non_terminals": ["A", "A'", "B", "B'", "S"],
+    #         "terminals": ["a", "b", "c", "d"],
+    #         "initial_symbol": "S",
     #         "productions": {
-    #             "S'": ["S", "&"],
-    #             "S": ["c"],
-    #             "A": ["c"],
-    #             "B": ["c"],
-    #             "C": ["c"]
+    #             "S": ["Bd", "&"],
+    #             "B": ["bB'", "AbB'"],
+    #             "A": ["bB'daA'", "&aA'", "aA'"],
+    #             "B'": ["cB'", "&"],
+    #             "A'": ["bB'daA'", "&"]
     #         }
     #     }
         

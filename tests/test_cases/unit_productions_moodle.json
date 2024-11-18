@@ -1,0 +1,17 @@
+[
+    {
+        "name": "Caso de teste 1",
+        "input": "{S',A,B,S}{a,b,c,d}{S'}{S' = S; S' = &; S = Bd; A = a; A = Sa; B = b; B = Ab; B = Bc;}",
+        "expected": {
+            "non_terminals": ["S", "A", "B", "S'"],
+            "terminals": ["a", "b", "c", "d"],
+            "initial_symbol": "S'",
+            "productions": {
+                "S'": ["Bd", "&"],
+                "S": ["Bd"],
+                "B": ["Ab", "Bc", "b"],
+                "A": ["Sa", "a"]
+            }
+        }
+    }
+] 
