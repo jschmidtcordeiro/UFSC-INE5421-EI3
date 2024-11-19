@@ -132,9 +132,19 @@ class Grammar:
                 non_terminals.append(symbol)
 
                 for production in self.productions[symbol]:
-                    for char in production:
-                        if char in self.terminals and char not in terminals:
-                            terminals.append(char)
+                    i = 0
+                    while i < len(production):
+                        # Check for multi-character terminals
+                        found_match = False
+                        for terminal in sorted(self.terminals, key=len, reverse=True):
+                            if production[i:].startswith(terminal) and terminal not in terminals:
+                                terminals.append(terminal)
+                                i += len(terminal)
+                                found_match = True
+                                break
+                        
+                        if not found_match:
+                            i += 1
 
         self.non_terminals = non_terminals
         self.terminals = terminals
@@ -315,25 +325,23 @@ class Grammar:
     def remove_unit_productions(self):
         # For each non-terminal A, compute set of non-terminals reachable through unit productions
         unit_pairs = set()
-        print(f"Initial symbol: {self.initial_symbol}")
+        
         for A in self.non_terminals:
             # Initialize with reflexive pairs (A,A)
             current_pairs = {(A, A)}
-            changed = True
+            to_process = {A}  # Keep track of symbols we need to process
             
-            while changed:
-                changed = False
-                new_pairs = set()
-                for B, C in [(b, c) for b, c in current_pairs]:
-                    if B in self.productions:
-                        for prod in self.productions[B]:
-                            # If production is a single non-terminal
-                            if len(prod) == 1 and prod in self.non_terminals:
-                                new_pair = (A, prod)
-                                if new_pair not in current_pairs:
-                                    new_pairs.add(new_pair)
-                                    changed = True
-                current_pairs.update(new_pairs)
+            while to_process:
+                B = to_process.pop()
+                if B in self.productions:
+                    for prod in self.productions[B]:
+                        # If production is a single non-terminal
+                        if len(prod) == 1 and prod in self.non_terminals:
+                            new_pair = (A, prod)
+                            if new_pair not in current_pairs:
+                                current_pairs.add(new_pair)
+                                to_process.add(prod)  # Add the new symbol to process
+            
             unit_pairs.update(current_pairs)
 
         # Create new productions without unit productions
@@ -346,13 +354,11 @@ class Grammar:
                     # Add all non-unit productions of B to A
                     for prod in self.productions[B]:
                         # Keep unit productions for initial symbol
-                        print(f"A: {A}, B: {B}, prod: {prod}")
                         if (len(prod) != 1 or prod not in self.non_terminals):
                             if prod not in new_productions[A]:
                                 new_productions[A].append(prod)
                             
 
-        print(f"New productions: {new_productions}")
         # Update the grammar's productions
         self.productions = new_productions
 
