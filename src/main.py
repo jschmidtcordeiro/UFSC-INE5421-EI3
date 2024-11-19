@@ -7,21 +7,44 @@ Alunos:
 from sys import argv
 from grammar import Grammar
 
+# Funcao para printar os casos de testes do Moodle de uma forma mais organizada
+def print_test_cases():
+    print("================================================")
+    print("\nCaso de teste 1:")
+    print("Gramática 1:")
+    input = "{S,S',A,B}{a,b,c,d}{S}{S = Bd; A = a; A = Sa; B = b; B = Bc; B = Ab; S' = &; S' = S}"
+    Grammar.from_string(input).print_productions()
+    print("Gramática 2:")
+    input = "{S,S',A,B}{a,b,c,d}{S}{S = Bd; A = a; A = Sa; B = b; B = Bc; B = Ab; S' = &; S' = S}"
+    Grammar.from_string(input).print_productions()
+    print("\n================================================")
+
+    print("\nCaso de teste 2:")
+    print("Gramática 1:")
+    input = "{E,F,P,T}{(,),*,**,+,-,/,cte,id}{E}{E = T; E = E + T; E = E - T; F = F ** P; F = P; P = id; P = (E); P = cte; T = F; T = T / F; T = T * F}"
+    Grammar.from_string(input).print_productions()
+    print("Gramática 2:")
+    input = "{E,F,P,T}{(,),*,**,+,-,/,cte,id}{E}{E = T; E = E + T; E = E - T; F = F ** P; F = P; P = id; P = (E); P = cte; T = F; T = T / F; T = T * F}"
+    Grammar.from_string(input).print_productions()
+
+    print("\n================================================")
+
+    print("\nCaso de teste 3:")
+    print("Gramática 1:")
+    input = "{A,C,S}{a,b,c,d}{A}{A = Acc; A = Sc; C = a; C = Scd; C = Aba; C = Cb; S = Aa; S = Sab; S = Cc}"
+    Grammar.from_string(input).print_productions()
+    print("Gramática 2:")
+    input = "{A,C,S}{a,b,c,d}{A}{A = Acc; A = Sc; C = a; C = Scd; C = Aba; C = Cb; S = Aa; S = Sab; S = Cc}"
+    Grammar.from_string(input).print_productions()
+
+    print("\n================================================")
 
 def main():
-    input = "{A,B,S}{a,b,c,d}{S}{S = Bd; S = &; B = Bc; B = b; B = Ab; A = Sa; A = a}"
-    input = "{A,B,C,D,E,F,S}{a,b,c,d,e,f}{S}{S = aSa;S = FbD;S = BE;A = aA; A = CA; A = &; B = bB; B = FE; C = cCb; C = AcA; D = Dd; D = fF; D = c; E = BC; E = eE; E = EB; F = fF; F = Dd}"
-    input = "{S,A,B,C,D}{a,b,c,d}{S}{S = AB; S = aS; A = bA; A = BC; B = db; B = C; B = &; C = cCc; C = BD; D = CD; D = d; D = &}"
-    # input = "{S,A,B,C}{b,c}{S}{S = ABC; A = &; B = b; B = &; C = c; C = &}"
-    input = "{A,B,S}{a,b,c,d}{S}{S = Bd; S = &; B = Bc; B = b; B = Ab; A = Sa; A = a}"
     grammar = Grammar.from_string(input)
     grammar.remove_useless_symbols()
-    grammar.print_productions()
     grammar.remove_epsilon_productions()
     grammar.remove_unit_productions()
-    grammar.print_productions()
     grammar1 = grammar.clone()
-
     grammar.remove_left_recursion()
 
     print(f"<<{grammar1.string_output()}><{grammar.string_output()}>>")
