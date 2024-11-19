@@ -18,9 +18,9 @@ class Grammar:
         sections = input_str.split("{")
 
         # Extract and clean up each component
-        non_terminals = sections[1].split("}")[0].split(",")
-        terminals = sections[2].split("}")[0].split(",")
-        initial_symbol = sections[3].split("}")[0]
+        non_terminals = [nt.strip() for nt in sections[1].split("}")[0].split(",")]
+        terminals = [t.strip() for t in sections[2].split("}")[0].split(",")]
+        initial_symbol = sections[3].split("}")[0].strip()
 
         # Convert productions into a dictionary for easier manipulation
         production_strings = sections[4].split("}")[0].split(";")
@@ -31,6 +31,51 @@ class Grammar:
                 # Remove whitespace from left and right
                 left = left.strip()
                 right = right.strip()
+                
+                # Split the right side into symbols while preserving multi-character terminals
+                symbols = []
+                current_symbol = ""
+                i = 0
+                while i < len(right):
+                    if right[i].isspace():
+                        if current_symbol:
+                            symbols.append(current_symbol)
+                            current_symbol = ""
+                        i += 1
+                        continue
+                    
+                    # Check for multi-character terminals and non-terminals
+                    found_match = False
+                    for terminal in sorted(terminals, key=len, reverse=True):
+                        if right[i:].startswith(terminal):
+                            if current_symbol:
+                                symbols.append(current_symbol)
+                            symbols.append(terminal)
+                            i += len(terminal)
+                            current_symbol = ""
+                            found_match = True
+                            break
+                            
+                    for non_terminal in sorted(non_terminals, key=len, reverse=True):
+                        if right[i:].startswith(non_terminal):
+                            if current_symbol:
+                                symbols.append(current_symbol)
+                            symbols.append(non_terminal)
+                            i += len(non_terminal)
+                            current_symbol = ""
+                            found_match = True
+                            break
+                
+                    if not found_match:
+                        current_symbol += right[i]
+                        i += 1
+                
+                if current_symbol:
+                    symbols.append(current_symbol)
+                
+                # Join the symbols back together
+                right = "".join(symbols)
+                
                 # Initialize list if key doesn't exist, then append
                 if left not in productions:
                     productions[left] = []
@@ -270,14 +315,14 @@ class Grammar:
     def remove_unit_productions(self):
         # For each non-terminal A, compute set of non-terminals reachable through unit productions
         unit_pairs = set()
+        print(f"Initial symbol: {self.initial_symbol}")
         for A in self.non_terminals:
             # Initialize with reflexive pairs (A,A)
             current_pairs = {(A, A)}
             changed = True
-
+            
             while changed:
                 changed = False
-                # Look for B → C where (A,B) is already found
                 new_pairs = set()
                 for B, C in [(b, c) for b, c in current_pairs]:
                     if B in self.productions:
@@ -300,17 +345,18 @@ class Grammar:
                 if B in self.productions:
                     # Add all non-unit productions of B to A
                     for prod in self.productions[B]:
-                        # Skip unit productions
-                        if len(prod) != 1 or prod not in self.non_terminals:
+                        # Keep unit productions for initial symbol
+                        print(f"A: {A}, B: {B}, prod: {prod}")
+                        if (len(prod) != 1 or prod not in self.non_terminals):
                             if prod not in new_productions[A]:
                                 new_productions[A].append(prod)
+                            
 
+        print(f"New productions: {new_productions}")
         # Update the grammar's productions
         self.productions = new_productions
 
         self.update_grammar()
-
-        # print("Productions after removing unit productions:")
 
     def remove_left_recursion(self):
         for i in range(len(self.non_terminals)):
