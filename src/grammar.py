@@ -369,15 +369,18 @@ class Grammar:
             a_i = self.non_terminals[i]
 
             # Remove indirect left recursion
-            """
+            
             for j in range(i):
                 a_j = self.non_terminals[j]
                 for i_production in self.productions[a_i]:
-                    if i_production[0] == a_j:
+                    if i_production[0:len(a_j)] == a_j:
                         self.productions[a_i].remove(i_production)
                         for j_production in self.productions[a_j]:
-                            self.productions[a_i].append(j_production + i_production)
-            """
+                            if j_production == '&':
+                                self.productions[a_i].append(i_production[1:])
+                            else:
+                                self.productions[a_i].append(j_production + i_production[1:])
+            
             # Remove direct left recursion
             prods_with_recursion = [
                 prod for prod in self.productions[a_i] if prod[0] == a_i
@@ -396,7 +399,10 @@ class Grammar:
                 self.productions[a_i].clear()
 
                 for prod in prods_without_recursion:
-                    self.productions[a_i].append(prod + new_non_terminal)
+                    if prod == '&':
+                        self.productions[a_i].append(new_non_terminal)
+                    else:
+                        self.productions[a_i].append(prod + new_non_terminal)
 
                 self.productions[new_non_terminal] = []
                 for prod in prods_with_recursion:
