@@ -51,6 +51,21 @@
         }
     },
     {
+        "name": "Caso de teste 2",
+        "input": "{E,T,F,P}{+, -, *, /, **, (, ), id, cte}{E}{E = E + T; E = E - T; E = T; T = T * F; T = F; T = T / F; F = F ** P; F = P; P = (E); P = id; P = cte;}",
+        "expected": {
+            "non_terminals": ["E", "T", "F", "P"],
+            "terminals": ["+", "-", "*", "/", "**", "(", ")", "id", "cte"],
+            "initial_symbol": "E",
+            "productions": {
+                "E": ["T", "E+T", "E-T"],
+                "T": ["F", "T*F", "T/F"],
+                "F": ["P", "F**P"],
+                "P": ["(E)", "id", "cte"]
+            }
+        }
+    },
+    {
         "name": "Caso de teste 3",
         "input": "{A,S,C}{a,b,c,d}{A}{A = Sc; A = Acc; S = Sab; S = Cc; S = Aa; C = Scd; C = Aba; C = Cb; C = a;}",
         "expected": {
