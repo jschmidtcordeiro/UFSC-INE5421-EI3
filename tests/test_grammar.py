@@ -65,6 +65,14 @@ class TestGrammar:
         grammar.remove_unit_productions()
         assert_grammar_equals(grammar, test_case["expected"])
 
+    @pytest.mark.parametrize("test_case", load_test_cases("left_recursion.json"))
+    def test_remove_left_recursion(self, test_case):
+        print(f"\nTesting: {test_case['name']}")
+        grammar = Grammar.from_string(test_case["input"])
+
+        grammar.remove_left_recursion()
+        assert_grammar_equals(grammar, test_case["expected"])
+
     # def test_combined_transformations(self):
     #     """Test all transformations in sequence"""
     #     input_str = "{A,B,S}{a,b,c,d}{S}{S = Bd; S = &; B = Bc; B = b; B = Ab; A = Sa; A = a}"

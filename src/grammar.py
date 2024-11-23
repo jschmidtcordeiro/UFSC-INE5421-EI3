@@ -411,6 +411,8 @@ class Grammar:
                     )
                 self.productions[new_non_terminal].append("&")
 
+        self.update_grammar()
+
 
 def get_combinations(items, r):
     if r == 0:
