@@ -1,0 +1,35 @@
+# Caso de teste 1
+
+ Expected output: <<{S,S',A,B}{a,b,c,d}{S}{S = Bd; A = a; A = Sa; B = b; B = Bc; B = Ab; S' = &; S' = S}>
+ <{S,S',A,B}{a,b,c,d}{S}{S = Bd; A = a; A = Sa; B = b; B = Bc; B = Ab; S' = &; S' = S}>>
+ 
+# Caso de teste 2
+
+Input: "{E,T,F,P}{+, -, *, /, **, (, ), id, cte}{E}{E = E + T; E = E - T; E = T; T = T * F; T = F; T = T / F; F = F ** P; F = P; P = (E); P = id; P = cte;}"
+ Output: <<{E,T,F,P,E',T',F'}{+}{E}{E = T * FE'; E = T / FE'; T = F ** PT'; F = cteF'; F = idF'; F = (E)F'; P = cte; P = id; P = (E); E' =  + TE'; E' =  - TE'; E' = &; T' =  * FT'; T' =  / FT'; T' = &; F' =  ** PF'; F' = &}><{E,T,F,P,E',T',F'}{+}{E}{E = T * FE'; E = T / FE'; T = F ** PT'; F = cteF'; F = idF'; F = (E)F'; P = cte; P = id; P = (E); E' =  + TE'; E' =  - TE'; E' = &; T' =  * FT'; T' =  / FT'; T' = &; F' =  ** PF'; F' = &}>>
+ Expected output: <<{E,F,P,T}{(,),*,**,+,-,/,cte,id}{E}{E = T; E = E + T; E = E - T; F = F ** P; F = P; P = id; P = (E); P = cte; T = F; T = T / F; T = T * F}>
+ <{E,F,P,T}{(,),*,**,+,-,/,cte,id}{E}{E = T; E = E + T; E = E - T; F = F ** P; F = P; P = id; P = (E); P = cte; T = F; T = T / F; T = T * F}>>
+
+
+     {
+        "name": "Caso de teste 2",
+        "input": "{E,T,F,P}{+, -, *, /, **, (, ), id, cte}{E}{E = E + T; E = E - T; E = T; T = T * F; T = F; T = T / F; F = F ** P; F = P; P = (E); P = id; P = cte;}",
+        "expected": {
+            "non_terminals": ["E", "T", "F", "P"],
+            "terminals": ["+", "-", "*", "/", "**", "(", ")", "id", "cte"],
+            "initial_symbol": "E",
+            "productions": {
+                "E": ["T", "E + T", "E - T"],
+                "T": ["F", "T * F", "T / F"],
+                "F": ["P", "F ** P"],
+                "P": ["(E)", "id", "cte"]
+            }
+        }
+    }
+
+# Caso de teste 3
+
+ Input: "{A,S,C}{a,b,c,d}{A}{A = Sc; A = Acc; S = Sab; S = Cc; S = Aa; C = Scd; C = Aba; C = Cb; C = a;}"
+ Output: <<{S,C,A,S',C',A'}{a,b,c,d}{A}{S = CcS'; S = AaS'; C = ScdC'; C = aC'; C = AbaC'; A = ScA'; S' = abS'; S' = &; C' = bC'; C' = &; A' = ccA'; A' = &}><{S,C,A,S',C',A'}{a,b,c,d}{A}{S = CcS'; S = AaS'; C = ScdC'; C = aC'; C = AbaC'; A = ScA'; S' = abS'; S' = &; C' = bC'; C' = &; A' = ccA'; A' = &}>>
+ Expected output: <<{A,C,S}{a,b,c,d}{A}{A = Acc; A = Sc; C = a; C = Scd; C = Aba; C = Cb; S = Aa; S = Sab; S = Cc}>
+ <{A,C,S}{a,b,c,d}{A}{A = Acc; A = Sc; C = a; C = Scd; C = Aba; C = Cb; S = Aa; S = Sab; S = Cc}>>

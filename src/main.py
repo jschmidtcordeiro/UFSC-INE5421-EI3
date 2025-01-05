@@ -40,14 +40,20 @@ def print_test_cases():
     print("\n================================================")
 
 def main():
+    input = "{S,B,A}{a,b,c,d}{S}{S = Bd; S = &; B = Ab; B = Bc; A = Sa; A = &;}"
     grammar = Grammar.from_string(input)
     grammar.remove_useless_symbols()
     grammar.remove_epsilon_productions()
     grammar.remove_unit_productions()
-    grammar1 = grammar.clone()
+    grammar.print_productions()
+    print("--------------------------------")
+    grammar1 = grammar.string_output()
     grammar.remove_left_recursion()
+    grammar.print_productions()
 
-    print(f"<<{grammar1.string_output()}><{grammar.string_output()}>>")
+    print(f"<<{grammar1}><{grammar.string_output()}>>")
+
+    # print_test_cases()
 
 
 if __name__ == "__main__":
